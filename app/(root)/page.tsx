@@ -1,6 +1,7 @@
 import QuickPostBox from "@/components/QuickPostBox";
 import FilterStrip from "@/components/FilterStrip";
 import PostCard from "@/components/PostCard";
+import OpenQuests from "@/components/OpenQuests";
 
 const dummyPosts = [
   {
@@ -35,15 +36,21 @@ const dummyPosts = [
 
 const Page = () => {
   return (
-    <section>
-      <QuickPostBox />
-      <FilterStrip />
-      <div className="post-list mt-8 flex flex-col gap-4">
-        {dummyPosts.map((post) => (
-          <PostCard key={post.title} {...post} />
-        ))}
-      </div>
-    </section>
+    <div className="flex flex-row items-start gap-8">
+      <section className="flex-1">
+        <QuickPostBox />
+        <FilterStrip />
+        <div className="post-list mt-8 flex flex-col gap-4">
+          {dummyPosts.map((post) => (
+            <PostCard key={post.title} {...post} />
+          ))}
+        </div>
+      </section>
+
+      <aside className="hidden w-72 shrink-0 lg:block">
+        <OpenQuests />
+      </aside>
+    </div>
   );
 };
 
