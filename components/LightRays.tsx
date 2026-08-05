@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { Renderer, Program, Triangle, Mesh } from "ogl";
-import "./LightRays.css";
+// import "./LightRays.css";
 
 export type RaysOrigin =
   | "top-center"
@@ -55,10 +55,10 @@ const hexToRgb = (hex: string): [number, number, number] => {
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return m
     ? [
-        parseInt(m[1], 16) / 255,
-        parseInt(m[2], 16) / 255,
-        parseInt(m[3], 16) / 255,
-      ]
+      parseInt(m[1], 16) / 255,
+      parseInt(m[2], 16) / 255,
+      parseInt(m[3], 16) / 255,
+    ]
     : [1, 1, 1];
 };
 
