@@ -1,22 +1,24 @@
 const openQuests = [
-    "Anyone dealt with hydration mismatch in server components?",
-    "Best way to type a discriminated union from an API response?",
-    "Why does my useEffect cleanup fire twice in dev mode?",
-    "Is there a clean pattern for optimistic updates with server actions?",
+    { title: "Anyone dealt with hydration mismatch in server components?", replies: 9 },
+    { title: "Best way to type a discriminated union from an API response?", replies: 6 },
+    { title: "Why does my useEffect cleanup fire twice in dev mode?", replies: 4 },
+    { title: "Is there a clean pattern for optimistic updates with server actions?", replies: 2 },
 ];
 
 const OpenQuests = () => {
     return (
-        <div className="open-quests bg-dark-100 border-dark-200 flex w-full flex-col gap-3 rounded-[10px] border px-4 py-4">
+        <div className="open-quests flex w-full flex-col gap-3">
             <span className="text-sm font-semibold">Open quests</span>
 
-            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-                {openQuests.map((title) => (
-                    <li
-                        key={title}
-                        className="text-light-200 hover:text-light-100 cursor-pointer text-xs leading-snug transition-colors"
-                    >
-                        {title}
+            <ul className="m-0 flex list-none flex-col gap-3 p-0">
+                {openQuests.map((quest) => (
+                    <li key={quest.title} className="flex cursor-pointer flex-col gap-0.5">
+                        <span className="text-light-100 hover:text-primary text-sm leading-snug transition-colors">
+                            {quest.title}
+                        </span>
+                        <span className="text-light-200 text-xs">
+                            {quest.replies} {quest.replies === 1 ? "reply" : "replies"}
+                        </span>
                     </li>
                 ))}
             </ul>
