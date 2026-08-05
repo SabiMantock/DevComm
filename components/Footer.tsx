@@ -28,6 +28,22 @@ const Footer = () => {
                     >
                         GitHub
                     </Link>
+                    <Link
+                        href="/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-light-200 hover:text-light-100 text-xs transition-colors md:hidden"
+                    >
+                        Twitter
+                    </Link>
+                    <Link
+                        href="/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-light-200 hover:text-light-100 text-xs transition-colors md:hidden"
+                    >
+                        Discord
+                    </Link>
                 </div>
             </div>
         </footer>
