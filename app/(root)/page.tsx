@@ -1,6 +1,7 @@
 import QuickPostBox from "@/components/QuickPostBox";
 import FilterStrip from "@/components/FilterStrip";
 import PostCard from "@/components/PostCard";
+import WelcomeCard from "@/components/WelcomeCard";
 import OpenQuests from "@/components/OpenQuests";
 import PlaygroundHighlights from "@/components/PlaygroundHighlights";
 
@@ -49,6 +50,7 @@ const Page = () => {
       </section>
 
       <aside className="hidden w-72 shrink-0 flex-col gap-6 lg:flex">
+        <WelcomeCard />
         <OpenQuests />
         <PlaygroundHighlights />
       </aside>
