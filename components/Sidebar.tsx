@@ -1,5 +1,5 @@
-import Link from "next/link";
 import NavItem from "@/components/NavItem";
+import SocialLinks from "@/components/SocialLinks";
 
 const Sidebar = () => {
     return (
@@ -22,16 +22,8 @@ const Sidebar = () => {
                 </ul>
             </div>
 
-            <div className="border-border-dark hidden flex-row items-center gap-3 border-t pt-4 md:flex">
-                <Link href="/" className="text-light-200 hover:text-light-100 text-xs transition-colors">
-                    GitHub
-                </Link>
-                <Link href="/" className="text-light-200 hover:text-light-100 text-xs transition-colors">
-                    Twitter
-                </Link>
-                <Link href="/" className="text-light-200 hover:text-light-100 text-xs transition-colors">
-                    Discord
-                </Link>
+            <div className="border-border-dark hidden border-t pt-4 md:flex">
+                <SocialLinks />
             </div>
         </nav>
     )
