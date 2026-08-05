@@ -13,7 +13,8 @@ const Footer = () => {
                     {/* On md+ these live in the sidebar's "Other" group, which is hidden on mobile */}
                     <FooterLink href="/privacy-policy" label="Privacy Policy" mobileOnly />
                     <FooterLink href="/terms-of-use" label="Terms of Use" mobileOnly />
-                    <SocialLinks />
+                    {/* On md+ the socials live in the sidebar */}
+                    <SocialLinks className="md:hidden" />
                 </div>
             </div>
         </footer>

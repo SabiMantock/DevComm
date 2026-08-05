@@ -6,9 +6,9 @@ const socials = [
     { label: "Discord", href: "/" },
 ];
 
-const SocialLinks = () => {
+const SocialLinks = ({ className = "" }: { className?: string }) => {
     return (
-        <div className="flex flex-row items-center gap-3">
+        <div className={`flex flex-row items-center gap-3 ${className}`.trim()}>
             {socials.map(({ label, href }) => (
                 <Link
                     key={label}
