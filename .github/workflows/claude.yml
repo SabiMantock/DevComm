@@ -46,5 +46,11 @@ jobs:
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
-          # claude_args: '--allowed-tools Bash(gh pr *)'
+          #
+          # Scope guardrail: keep Claude's changes limited to exactly what the
+          # triggering comment/issue asked for. Added after a session bundled an
+          # unrequested restructure (moving pages into a route group) alongside
+          # a legitimate one-line fix in the same PR.
+          claude_args: |
+            --append-system-prompt "Only make the exact change requested by the triggering comment, review, or issue. Do not perform unrelated refactors, restructures, or 'while I'm at it' fixes in the same commit/PR, even if you notice a real problem elsewhere — instead, leave a comment describing what you noticed and let a human decide whether to request it separately. Keep every PR scoped to a single concern."
 
