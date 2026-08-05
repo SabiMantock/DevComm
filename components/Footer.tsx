@@ -13,6 +13,13 @@ const Footer = () => {
                     <Link href="/contact" className="text-light-200 hover:text-light-100 text-xs transition-colors">
                         Contact
                     </Link>
+                    {/* On md+ these live in the sidebar's "Other" group, which is hidden on mobile */}
+                    <Link href="/privacy-policy" className="text-light-200 hover:text-light-100 text-xs transition-colors md:hidden">
+                        Privacy Policy
+                    </Link>
+                    <Link href="/terms-of-use" className="text-light-200 hover:text-light-100 text-xs transition-colors md:hidden">
+                        Terms of Use
+                    </Link>
                     <Link
                         href="/"
                         target="_blank"
