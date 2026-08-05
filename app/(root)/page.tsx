@@ -2,6 +2,7 @@ import QuickPostBox from "@/components/QuickPostBox";
 import FilterStrip from "@/components/FilterStrip";
 import PostCard from "@/components/PostCard";
 import OpenQuests from "@/components/OpenQuests";
+import PlaygroundHighlights from "@/components/PlaygroundHighlights";
 
 const dummyPosts = [
   {
@@ -47,8 +48,9 @@ const Page = () => {
         </div>
       </section>
 
-      <aside className="hidden w-72 shrink-0 lg:block">
+      <aside className="hidden w-72 shrink-0 flex-col gap-6 lg:flex">
         <OpenQuests />
+        <PlaygroundHighlights />
       </aside>
     </div>
   );
