@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevComm 1
 
-## Getting Started
+Ask. Respond. Share. An open-source community site for DevComm 1, a local guild of programmers helping each other survive and thrive.
 
-First, run the development server:
+## About
+
+DevComm 1 is a place to ask questions, share tips and tricks, post memes, and showcase what you're building — no matter how nuanced the problem or how "obvious" the question feels. The guild runs on three simple rules:
+
+1. **Have a question? Ask.** Collaborative problem solving is the whole point.
+2. **Have an answer? Respond.** Even a partial answer might be someone's big break.
+3. **Found a solution? Share.** Discuss it, refine it, level up together.
+
+**Rules of engagement:** no ads except related side-quests/job opportunities, no harassment or trolling, no unrelated content — stay on topic and respect every contribution.
+
+## Features
+
+- **Home feed** — questions, tips, memes, and wins from the guild, filterable by type
+- **Playground** *(coming soon)* — a showcase for projects members are building, with its own discussion threads
+- **Open quests** — unanswered questions surfaced in the sidebar so nothing gets left behind
+- Built to be open source from the start — fork it, extend it, or spin up your own guild's version
+
+## Tech stack
+
+- [Next.js](https://nextjs.org) (App Router)
+- [TypeScript](https://www.typescriptlang.org)
+- [Tailwind CSS](https://tailwindcss.com)
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see it running.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/            routes (App Router)
+components/     shared UI components (Navbar, Sidebar, PostCard, etc.)
+```
 
-## Learn More
+Currently running on hardcoded mock data — no backend or auth yet. Both are on the roadmap.
 
-To learn more about Next.js, take a look at the following resources:
+## Contributing
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is open source and welcomes contributions. Since it's also a learning project built alongside a Next.js course, expect the codebase to grow in stages — static UI first, then real data, then persistence and auth. Check open issues or start a discussion before working on something larger.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+TBD.
