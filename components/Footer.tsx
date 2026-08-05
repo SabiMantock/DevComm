@@ -1,4 +1,5 @@
-import Link from "next/link";
+import FooterLink from "@/components/FooterLink";
+import SocialLinks from "@/components/SocialLinks";
 
 const Footer = () => {
     return (
@@ -7,20 +8,13 @@ const Footer = () => {
                 <p className="text-light-200 text-xs">DevComm 1 &mdash; open source</p>
 
                 <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
-                    <Link href="/code-of-conduct" className="text-light-200 hover:text-light-100 text-xs transition-colors">
-                        Read the guild rules
-                    </Link>
-                    <Link href="/contact" className="text-light-200 hover:text-light-100 text-xs transition-colors">
-                        Contact
-                    </Link>
-                    <Link
-                        href="/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-light-200 hover:text-light-100 text-xs transition-colors"
-                    >
-                        GitHub
-                    </Link>
+                    <FooterLink href="/code-of-conduct" label="Read the guild rules" />
+                    <FooterLink href="/contact" label="Contact" />
+                    {/* On md+ these live in the sidebar's "Other" group, which is hidden on mobile */}
+                    <FooterLink href="/privacy-policy" label="Privacy Policy" mobileOnly />
+                    <FooterLink href="/terms-of-use" label="Terms of Use" mobileOnly />
+                    {/* On md+ the socials live in the sidebar */}
+                    <SocialLinks className="md:hidden" />
                 </div>
             </div>
         </footer>
