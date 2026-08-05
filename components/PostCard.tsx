@@ -27,7 +27,7 @@ const PostCard = ({ author, timestamp, title, tags, replies }: PostCardProps) =>
             <div className="flex flex-row flex-wrap gap-2">
                 {tags.map((tag) => (
                     <span key={tag} className="pill">
-                        {tag}
+                        #{tag.toLowerCase().replace(/[^a-z0-9]/g, "")}
                     </span>
                 ))}
             </div>
