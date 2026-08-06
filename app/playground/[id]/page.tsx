@@ -61,9 +61,7 @@ const Page = async (props: PageProps<"/playground/[id]">) => {
         initialLikes={18 + project.stack.length * 3}
         initialComments={dummyComments}
         secondaryAction={
-          // No /new/post route yet — once it exists, this should link to `/new/post?project=${project.id}`
-          // so a post made from here can carry a reference back to this project.
-          <Button href="/" variant="ghost">
+          <Button href={`/new?project=${project.id}`} variant="ghost">
             Make a post about it
           </Button>
         }
