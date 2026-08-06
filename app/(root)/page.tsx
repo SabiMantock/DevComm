@@ -1,4 +1,3 @@
-import QuickPostBox from "@/components/QuickPostBox";
 import FilterStrip from "@/components/FilterStrip";
 import PostCard from "@/components/PostCard";
 import WelcomeCard from "@/components/WelcomeCard";
@@ -10,7 +9,6 @@ const Page = () => {
   return (
     <div className="flex flex-row items-start gap-8">
       <section className="flex-1">
-        <QuickPostBox />
         <FilterStrip
           className="mt-6"
           groups={[{ label: "Filter by type", options: ["All", "Questions", "Tips", "Memes", "Wins"] }]}
