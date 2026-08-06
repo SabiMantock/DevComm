@@ -39,6 +39,8 @@ const Page = async (props: PageProps<"/post/[id]">) => {
 
   return (
     <article className="flex flex-col gap-6">
+      {post.coverImage && <div className="bg-dark-200 aspect-[21/9] w-full rounded-[10px]" aria-hidden="true" />}
+
       <div className="flex flex-row items-center gap-3">
         <div className="bg-dark-200 h-10 w-10 shrink-0 rounded-full" aria-hidden="true" />
         <div className="flex flex-col">

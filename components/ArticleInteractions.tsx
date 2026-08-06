@@ -13,12 +13,14 @@ type Comment = {
 type ArticleInteractionsProps = {
     initialLikes: number;
     initialComments: Comment[];
-    /** Body/details content rendered between the reaction bar and the Comments heading. */
+    /** Secondary CTA rendered alongside the like/comment row (e.g. "Make a post about it" on project pages). */
+    secondaryAction?: React.ReactNode;
+    /** Body content rendered between the reaction bar and the Comments heading. */
     children: React.ReactNode;
 };
 
 /** Like button + comment thread shared by the post and project detail pages. */
-const ArticleInteractions = ({ initialLikes, initialComments, children }: ArticleInteractionsProps) => {
+const ArticleInteractions = ({ initialLikes, initialComments, secondaryAction, children }: ArticleInteractionsProps) => {
     const [liked, setLiked] = useState(false);
     const [likes, setLikes] = useState(initialLikes);
     const [comments, setComments] = useState<Comment[]>(initialComments);
@@ -68,6 +70,8 @@ const ArticleInteractions = ({ initialLikes, initialComments, children }: Articl
                 <span className="text-light-200 text-sm">
                     {comments.length} {comments.length === 1 ? "comment" : "comments"}
                 </span>
+
+                {secondaryAction && <div className="ml-auto">{secondaryAction}</div>}
             </div>
 
             {children}

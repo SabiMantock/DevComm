@@ -1,5 +1,6 @@
 import ArticleInteractions from "@/components/ArticleInteractions";
 import ProjectMeta from "@/components/ProjectMeta";
+import Button from "@/components/Button";
 import { statusClassName } from "@/components/ProjectCard";
 import { projects } from "@/data/projects";
 
@@ -37,10 +38,10 @@ const Page = async (props: PageProps<"/playground/[id]">) => {
     );
   }
 
-  const paragraphs = project.details.split("\n\n");
-
   return (
     <article className="flex flex-col gap-6">
+      <div className="bg-dark-200 aspect-[21/9] w-full rounded-[10px]" aria-hidden="true" />
+
       <div className="flex flex-row items-center gap-3">
         <div className="bg-dark-200 h-10 w-10 shrink-0 rounded-[6px]" aria-hidden="true" />
         <div className="flex flex-col">
@@ -56,13 +57,19 @@ const Page = async (props: PageProps<"/playground/[id]">) => {
         </span>
       </div>
 
-      <ArticleInteractions initialLikes={18 + project.stack.length * 3} initialComments={dummyComments}>
+      <ArticleInteractions
+        initialLikes={18 + project.stack.length * 3}
+        initialComments={dummyComments}
+        secondaryAction={
+          // No /new/post route yet — once it exists, this should link to `/new/post?project=${project.id}`
+          // so a post made from here can carry a reference back to this project.
+          <Button href="/" variant="ghost">
+            Make a post about it
+          </Button>
+        }
+      >
         <div className="flex flex-col gap-4">
-          {paragraphs.map((paragraph, index) => (
-            <p key={index} className="text-light-100 text-sm leading-relaxed">
-              {paragraph}
-            </p>
-          ))}
+          <p className="text-light-100 text-sm leading-relaxed">{project.description}</p>
 
           <ProjectMeta stack={project.stack} liveUrl={project.liveUrl} repoUrl={project.repoUrl} />
         </div>

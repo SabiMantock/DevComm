@@ -6,6 +6,8 @@ export type Post = {
   tags: string[];
   replies: number;
   body: string;
+  /** Whether this post has a cover image. No real asset yet — renders as a placeholder block. */
+  coverImage?: boolean;
 };
 
 export const posts: Post[] = [
@@ -29,6 +31,7 @@ The tradeoff is that every workspace switch is a navigation, which means a round
     title: "Shipped my first side project this weekend 🎉",
     tags: ["Wins"],
     replies: 4,
+    coverImage: true,
     body: `I finally pushed the "Publish" button on a tiny habit tracker I've been poking at for the last three weekends. Nothing fancy — a streak counter, a calendar heatmap, and a way to log a habit with one tap — but it's the first thing I've built end to end and actually deployed instead of leaving in a half-finished repo.
 
 The last stretch was rough. I got stuck for way too long on the heatmap component fighting with CSS grid before realizing I was overcomplicating it and a simple flex-wrap would've done the job in a tenth of the code. Classic case of reaching for the "correct" solution before trying the boring one.
@@ -55,6 +58,7 @@ The one gotcha I ran into: you still want to visually indicate that the results 
     title: "When your code finally works but you don't know why",
     tags: ["Memes"],
     replies: 21,
+    coverImage: true,
     body: `Spent three hours convinced a race condition was corrupting my state. Added logging. Added more logging. Wrapped half the function in try/catch just to see what was actually happening. Rewrote the reducer twice. Nothing.
 
 Then, out of pure desperation, I deleted a semicolon that autoformat had added, retyped the exact same semicolon, saved the file, and it worked. Every time. I have no explanation. I removed the extra console.logs, and it still works. I am choosing not to investigate further because I am afraid of what I'll find, and also afraid of what I won't.
