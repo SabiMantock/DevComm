@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
+import { projects } from "@/data/projects";
 
 const MAX_TAGS = 4;
 
@@ -23,8 +24,9 @@ const wrapSelection = (textarea: HTMLTextAreaElement, before: string, after: str
   };
 };
 
-const Page = () => {
+const NewPostForm = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const bodyRef = useRef<HTMLTextAreaElement>(null);
   const coverImageInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +35,9 @@ const Page = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
   const [body, setBody] = useState("");
+  const [linkedProjectId, setLinkedProjectId] = useState(() => searchParams.get("project"));
+
+  const linkedProject = linkedProjectId ? projects.find((p) => p.id === linkedProjectId) : undefined;
 
   const addTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key !== "Enter") return;
@@ -109,6 +114,7 @@ const Page = () => {
     setTags([]);
     setTagDraft("");
     setBody("");
+    setLinkedProjectId(null);
 
     router.push("/");
   };
@@ -165,6 +171,8 @@ const Page = () => {
             placeholder="New post title here..."
             className="placeholder:text-light-200 w-full border-none bg-transparent text-3xl font-semibold outline-none md:text-4xl"
           />
+
+          {linkedProject && <span className="pill text-light-200 self-start">Linked to: {linkedProject.title}</span>}
 
           <div className="flex flex-row flex-wrap items-center gap-2">
             {tags.map((tag) => (
@@ -277,5 +285,13 @@ const Page = () => {
     </section>
   );
 };
+
+// useSearchParams (in NewPostForm) requires a Suspense boundary above it,
+// otherwise production builds fail — see Next.js docs on useSearchParams.
+const Page = () => (
+  <Suspense>
+    <NewPostForm />
+  </Suspense>
+);
 
 export default Page;
