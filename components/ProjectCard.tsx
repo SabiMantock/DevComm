@@ -1,14 +1,8 @@
 import Card from "@/components/Card";
 import FooterLink from "@/components/FooterLink";
+import type { Project } from "@/data/projects";
 
-type ProjectCardProps = {
-    title: string;
-    description: string;
-    stack: string[];
-    status: "WIP" | "Shipped";
-    liveUrl?: string;
-    repoUrl?: string;
-};
+type ProjectCardProps = Project;
 
 const statusClassName: Record<ProjectCardProps["status"], string> = {
     Shipped: "bg-primary/10 text-primary border-primary/40",

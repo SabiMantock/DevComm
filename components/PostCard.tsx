@@ -1,12 +1,7 @@
 import Card from "@/components/Card";
+import type { Post } from "@/data/posts";
 
-type PostCardProps = {
-    author: string;
-    timestamp: string;
-    title: string;
-    tags: string[];
-    replies: number;
-};
+type PostCardProps = Post;
 
 const PostCard = ({ author, timestamp, title, tags, replies }: PostCardProps) => {
     return (
