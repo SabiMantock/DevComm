@@ -1,4 +1,4 @@
-import Link from "next/link";
+import FooterLink from "@/components/FooterLink";
 
 const socials = [
     { label: "GitHub", href: "/" },
@@ -10,15 +10,7 @@ const SocialLinks = ({ className = "" }: { className?: string }) => {
     return (
         <div className={`flex flex-row items-center gap-3 ${className}`.trim()}>
             {socials.map(({ label, href }) => (
-                <Link
-                    key={label}
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-light-200 hover:text-light-100 text-xs transition-colors"
-                >
-                    {label}
-                </Link>
+                <FooterLink key={label} href={href} label={label} external />
             ))}
         </div>
     )
