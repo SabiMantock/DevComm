@@ -1,3 +1,5 @@
+import Card from "@/components/Card";
+
 type PostCardProps = {
     author: string;
     timestamp: string;
@@ -8,7 +10,7 @@ type PostCardProps = {
 
 const PostCard = ({ author, timestamp, title, tags, replies }: PostCardProps) => {
     return (
-        <article className="post-card bg-dark-100 border-dark-200 flex w-full flex-col gap-4 rounded-[10px] border px-5 py-6">
+        <Card as="article" className="post-card">
             <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row items-center gap-3">
                     <div className="bg-dark-200 h-10 w-10 shrink-0 rounded-full" aria-hidden="true" />
@@ -31,7 +33,7 @@ const PostCard = ({ author, timestamp, title, tags, replies }: PostCardProps) =>
                     </span>
                 ))}
             </div>
-        </article>
+        </Card>
     )
 }
 
