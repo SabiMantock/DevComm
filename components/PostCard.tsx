@@ -1,9 +1,10 @@
+import Link from "next/link";
 import Card from "@/components/Card";
 import type { Post } from "@/data/posts";
 
 type PostCardProps = Post;
 
-const PostCard = ({ author, timestamp, title, tags, replies }: PostCardProps) => {
+const PostCard = ({ id, author, timestamp, title, tags, replies }: PostCardProps) => {
     return (
         <Card as="article" className="post-card">
             <div className="flex flex-row items-center justify-between">
@@ -19,7 +20,11 @@ const PostCard = ({ author, timestamp, title, tags, replies }: PostCardProps) =>
                 </span>
             </div>
 
-            <h3 className="text-lg font-semibold">{title}</h3>
+            <h3 className="text-lg font-semibold">
+                <Link href={`/post/${id}`} className="hover:text-primary transition-colors">
+                    {title}
+                </Link>
+            </h3>
 
             <div className="flex flex-row flex-wrap gap-2">
                 {tags.map((tag) => (
