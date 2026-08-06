@@ -6,7 +6,9 @@ type PostCardProps = Post;
 
 const PostCard = ({ id, author, timestamp, title, tags, replies }: PostCardProps) => {
     return (
-        <Card as="article" className="post-card">
+        <Card as="article" className="post-card border-dark-200 hover:border-primary/40 relative transition-colors">
+            <Link href={`/post/${id}`} className="absolute inset-0" aria-label={title} />
+
             <div className="flex flex-row items-center justify-between">
                 <div className="flex flex-row items-center gap-3">
                     <div className="bg-dark-200 h-10 w-10 shrink-0 rounded-full" aria-hidden="true" />
@@ -20,11 +22,7 @@ const PostCard = ({ id, author, timestamp, title, tags, replies }: PostCardProps
                 </span>
             </div>
 
-            <h3 className="text-lg font-semibold">
-                <Link href={`/post/${id}`} className="hover:text-primary transition-colors">
-                    {title}
-                </Link>
-            </h3>
+            <h3 className="text-lg font-semibold">{title}</h3>
 
             <div className="flex flex-row flex-wrap gap-2">
                 {tags.map((tag) => (
