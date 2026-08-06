@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
+import Button from "@/components/Button";
 
 const AuthButtons = () => {
     return (
         <div className="auth-buttons flex gap-2">
-            <Link href="/login" className="login-button">
+            <Button href="/login" variant="ghost">
                 Login
-            </Link>
-            <Link href="/signup" className="signup-button">
+            </Button>
+            <Button href="/signup">
                 Sign Up
-            </Link>
+            </Button>
         </div>
     )
 }
