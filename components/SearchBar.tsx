@@ -59,7 +59,7 @@ const SearchBar = () => {
     };
 
     return (
-        <div ref={containerRef} className="search-bar relative w-64">
+        <div ref={containerRef} className="search-bar relative min-w-0 max-w-lg flex-1">
             <form onSubmit={(event) => event.preventDefault()}>
                 <input
                     ref={inputRef}
