@@ -1,5 +1,5 @@
 import CTAButton from "@/components/CTAButton";
-import PlaygroundFilterStrip from "@/components/PlaygroundFilterStrip";
+import FilterStrip from "@/components/FilterStrip";
 
 const Page = () => {
   return (
@@ -9,7 +9,12 @@ const Page = () => {
         <CTAButton>Share a project</CTAButton>
       </div>
 
-      <PlaygroundFilterStrip />
+      <FilterStrip
+        groups={[
+          { label: "Filter by type", options: ["All", "Web app", "Tool", "Game", "Script"] },
+          { label: "Filter by status", options: ["All", "WIP", "Shipped"] },
+        ]}
+      />
     </section>
   );
 };

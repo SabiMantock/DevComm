@@ -41,7 +41,10 @@ const Page = () => {
     <div className="flex flex-row items-start gap-8">
       <section className="flex-1">
         <QuickPostBox />
-        <FilterStrip />
+        <FilterStrip
+          className="mt-6"
+          groups={[{ label: "Filter by type", options: ["All", "Questions", "Tips", "Memes", "Wins"] }]}
+        />
         <div className="post-list mt-8 flex flex-col gap-4">
           {dummyPosts.map((post) => (
             <PostCard key={post.title} {...post} />
