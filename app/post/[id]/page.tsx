@@ -1,5 +1,7 @@
 import ArticleInteractions from "@/components/ArticleInteractions";
+import Button from "@/components/Button";
 import { posts } from "@/data/posts";
+import { projects } from "@/data/projects";
 
 const dummyComments = [
   {
@@ -36,6 +38,7 @@ const Page = async (props: PageProps<"/post/[id]">) => {
   }
 
   const paragraphs = post.body.split("\n\n");
+  const relatedProject = post.projectId ? projects.find((p) => p.id === post.projectId) : undefined;
 
   return (
     <article className="flex flex-col gap-6">
@@ -59,7 +62,17 @@ const Page = async (props: PageProps<"/post/[id]">) => {
         ))}
       </div>
 
-      <ArticleInteractions initialLikes={post.replies + 8} initialComments={dummyComments}>
+      <ArticleInteractions
+        initialLikes={post.replies + 8}
+        initialComments={dummyComments}
+        secondaryAction={
+          relatedProject && (
+            <Button href={`/playground/${relatedProject.id}`} variant="ghost">
+              View the project
+            </Button>
+          )
+        }
+      >
         <div className="flex flex-col gap-4">
           {paragraphs.map((paragraph, index) => (
             <p key={index} className="text-light-100 text-sm leading-relaxed">

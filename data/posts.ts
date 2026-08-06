@@ -8,6 +8,8 @@ export type Post = {
   body: string;
   /** Whether this post has a cover image. No real asset yet — renders as a placeholder block. */
   coverImage?: boolean;
+  /** Id of a related project in data/projects.ts, when this post is about one. */
+  projectId?: string;
 };
 
 export const posts: Post[] = [
@@ -18,6 +20,7 @@ export const posts: Post[] = [
     title: "How do you handle state across nested server components?",
     tags: ["Questions", "Next.js"],
     replies: 12,
+    projectId: "realtime-kanban-board",
     body: `I've got a layout with a server component at the top, a couple of server components nested a few levels down, and a handful of client islands sprinkled throughout. The problem: two of those client islands need to react to the same piece of state (a selected "workspace"), but they don't share a parent client component — the closest common ancestor is a server component, and you can't just drop a Context.Provider there.
 
 My first instinct was to lift the state into a client component wrapping everything, but that turns almost the entire tree into client components again, which defeats the point of fetching data on the server in the nested pieces. I tried the URL as the source of truth instead — a searchParam for the active workspace — and that actually worked better than expected. Both client islands read it with useSearchParams, and the server components above them read it via the params/searchParams prop and refetch accordingly.
