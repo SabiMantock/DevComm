@@ -1,8 +1,12 @@
+import CTAButton from "@/components/CTAButton";
+
 const Page = () => {
   return (
-    <section>
-      <h1 className="text-center">Playground</h1>
-      <p className="text-center mt-5">This is the playground page content.</p>
+    <section className="flex flex-col gap-10">
+      <div className="flex flex-row items-center justify-between">
+        <h1>Playground</h1>
+        <CTAButton>Share a project</CTAButton>
+      </div>
     </section>
   );
 };
