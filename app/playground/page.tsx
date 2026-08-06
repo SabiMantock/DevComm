@@ -8,7 +8,7 @@ const Page = () => {
     <section className="flex flex-col gap-10">
       <div className="flex flex-row items-center justify-between">
         <h1>Playground</h1>
-        <Button>Share a project</Button>
+        <Button href="/playground/new">Share a project</Button>
       </div>
 
       <FilterStrip
