@@ -1,4 +1,5 @@
 import CTAButton from "@/components/CTAButton";
+import PlaygroundFilterStrip from "@/components/PlaygroundFilterStrip";
 
 const Page = () => {
   return (
@@ -7,6 +8,8 @@ const Page = () => {
         <h1>Playground</h1>
         <CTAButton>Share a project</CTAButton>
       </div>
+
+      <PlaygroundFilterStrip />
     </section>
   );
 };
