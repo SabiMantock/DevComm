@@ -1,4 +1,4 @@
-import Link from "next/link";
+import CTAButton from "@/components/CTAButton";
 
 const WelcomeCard = () => {
     return (
@@ -10,12 +10,9 @@ const WelcomeCard = () => {
                 <span className="text-light-200 text-xs tracking-wide">Ask · Respond · Share</span>
             </div>
 
-            <Link
-                href="/code-of-conduct"
-                className="bg-primary hover:bg-primary/90 flex w-full cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-sm font-semibold text-black transition-colors"
-            >
+            <CTAButton href="/code-of-conduct" className="w-full">
                 Read the guild rules
-            </Link>
+            </CTAButton>
         </div>
     )
 }
