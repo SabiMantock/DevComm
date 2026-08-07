@@ -76,7 +76,7 @@ const ArticleInteractions = ({ initialLikes, initialComments, secondaryAction, c
 
             {children}
 
-            <h3>Comments</h3>
+            <h3 id="comments">Comments</h3>
 
             <form onSubmit={handleSubmit} className="flex flex-col items-start gap-3">
                 <textarea

@@ -4,6 +4,7 @@ import "./globals.css";
 import LightRays from "@/components/LightRays";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { BookmarksProvider } from "@/lib/bookmarks-context";
 
 const schibstedGrotesk = Schibsted_Grotesk({
   variable: "--font-schibsted-grotesk",
@@ -43,7 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           />
         </div>
         <main>
-          {children}
+          <BookmarksProvider>{children}</BookmarksProvider>
         </main>
         <Footer />
       </body>
