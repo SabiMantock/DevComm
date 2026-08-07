@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import Button from "@/components/Button";
 
-type Reply = {
+export type Reply = {
     id: string;
     author: string;
     timestamp: string;
@@ -12,7 +12,7 @@ type Reply = {
     liked: boolean;
 };
 
-type Comment = {
+export type Comment = {
     id: string;
     author: string;
     timestamp: string;
@@ -22,6 +22,17 @@ type Comment = {
     replies: Reply[];
 };
 
+/** Imperative handle so a parent that hides the internal reaction bar (see hideReactionBar) can still trigger the like toggle — e.g. the post detail page's sidebar. */
+export type ArticleInteractionsHandle = {
+    toggleLike: () => void;
+};
+
+type ReactionState = {
+    likes: number;
+    liked: boolean;
+    commentCount: number;
+};
+
 type ArticleInteractionsProps = {
     initialLikes: number;
     initialComments: Comment[];
@@ -29,20 +40,33 @@ type ArticleInteractionsProps = {
     secondaryAction?: React.ReactNode;
     /** Body content rendered between the reaction bar and the Comments heading. */
     children: React.ReactNode;
+    /** Hides the internal like-button/comment-count row — for a parent rendering its own reaction UI elsewhere (e.g. the post detail page's sidebar). Defaults to false, so existing usages are unaffected. */
+    hideReactionBar?: boolean;
+    /** Reports the live like/comment state whenever it changes, so a parent-rendered reaction UI can mirror this component's internal state instead of keeping a disconnected copy. */
+    onReactionChange?: (state: ReactionState) => void;
 };
 
 /** Like button + comment thread shared by the post and project detail pages. */
-const ArticleInteractions = ({ initialLikes, initialComments, secondaryAction, children }: ArticleInteractionsProps) => {
+const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInteractionsProps>(function ArticleInteractions(
+    { initialLikes, initialComments, secondaryAction, children, hideReactionBar = false, onReactionChange },
+    ref
+) {
     const [liked, setLiked] = useState(false);
     const [likes, setLikes] = useState(initialLikes);
     const [comments, setComments] = useState<Comment[]>(initialComments);
     const [draft, setDraft] = useState("");
 
-    const toggleLike = () => {
+    const toggleLike = useCallback(() => {
         const nextLiked = !liked;
         setLiked(nextLiked);
         setLikes((count) => (nextLiked ? count + 1 : count - 1));
-    };
+    }, [liked]);
+
+    useImperativeHandle(ref, () => ({ toggleLike }), [toggleLike]);
+
+    useEffect(() => {
+        onReactionChange?.({ likes, liked, commentCount: comments.length });
+    }, [likes, liked, comments.length, onReactionChange]);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -100,36 +124,38 @@ const ArticleInteractions = ({ initialLikes, initialComments, secondaryAction, c
 
     return (
         <>
-            <div className="flex flex-row items-center gap-5">
-                <button
-                    type="button"
-                    onClick={toggleLike}
-                    aria-pressed={liked}
-                    className={`flex flex-row items-center gap-2 text-sm font-semibold transition-colors ${liked ? "text-primary" : "text-light-200 hover:text-light-100"}`}
-                >
-                    <svg
-                        viewBox="0 0 24 24"
-                        fill={liked ? "currentColor" : "none"}
-                        stroke="currentColor"
-                        strokeWidth={2}
-                        className="h-5 w-5"
-                        aria-hidden="true"
+            {!hideReactionBar && (
+                <div className="flex flex-row items-center gap-5">
+                    <button
+                        type="button"
+                        onClick={toggleLike}
+                        aria-pressed={liked}
+                        className={`flex flex-row items-center gap-2 text-sm font-semibold transition-colors ${liked ? "text-primary" : "text-light-200 hover:text-light-100"}`}
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 21s-6.72-4.35-9.33-8.2C1 10 1.6 6.6 4.4 5.1c2.3-1.2 4.9-.4 6.2 1.6l1.4 2.1 1.4-2.1c1.3-2 3.9-2.8 6.2-1.6 2.8 1.5 3.4 4.9 1.7 7.7C18.72 16.65 12 21 12 21z"
-                        />
-                    </svg>
-                    {likes}
-                </button>
+                        <svg
+                            viewBox="0 0 24 24"
+                            fill={liked ? "currentColor" : "none"}
+                            stroke="currentColor"
+                            strokeWidth={2}
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M12 21s-6.72-4.35-9.33-8.2C1 10 1.6 6.6 4.4 5.1c2.3-1.2 4.9-.4 6.2 1.6l1.4 2.1 1.4-2.1c1.3-2 3.9-2.8 6.2-1.6 2.8 1.5 3.4 4.9 1.7 7.7C18.72 16.65 12 21 12 21z"
+                            />
+                        </svg>
+                        {likes}
+                    </button>
 
-                <span className="text-light-200 text-sm">
-                    {comments.length} {comments.length === 1 ? "comment" : "comments"}
-                </span>
+                    <span className="text-light-200 text-sm">
+                        {comments.length} {comments.length === 1 ? "comment" : "comments"}
+                    </span>
 
-                {secondaryAction && <div className="ml-auto">{secondaryAction}</div>}
-            </div>
+                    {secondaryAction && <div className="ml-auto">{secondaryAction}</div>}
+                </div>
+            )}
 
             {children}
 
@@ -159,6 +185,6 @@ const ArticleInteractions = ({ initialLikes, initialComments, secondaryAction, c
             </ul>
         </>
     )
-}
+});
 
 export default ArticleInteractions
