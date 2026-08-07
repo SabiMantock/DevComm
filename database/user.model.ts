@@ -1,9 +1,9 @@
 import { Schema, model, models, Model, Document } from "mongoose";
 
-// Document shape for a User. No password field: auth is Google OAuth only,
+// Document shape for a User. No password field: auth is handled by Clerk,
 // so there's nothing to hash or verify locally.
 export interface IUser extends Document {
-  googleId: string;
+  clerkId: string;
   username: string;
   email: string;
   avatarUrl?: string;
@@ -15,11 +15,12 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const userSchema = new Schema<IUser>(
   {
-    // The `sub` claim from Google's OAuth profile. This is the real identity
-    // anchor for the account — unlike `email`/`username`, Google guarantees
-    // it never changes for the lifetime of the account, so it's what
-    // authentication should key off, not email or username.
-    googleId: {
+    // Clerk's own user id for the account. This is the real identity anchor
+    // — it's provider-agnostic (stable no matter which sign-in method the
+    // user goes through via Clerk) and unlike `email`/`username`, it never
+    // changes, so it's what authentication should key off, not email or
+    // username.
+    clerkId: {
       type: String,
       required: true,
       unique: true,
@@ -38,7 +39,7 @@ const userSchema = new Schema<IUser>(
         message: (props: { value: string }) => `${props.value} is not a valid email address.`,
       },
     },
-    // Populated from Google's profile picture at signup; not guaranteed to
+    // Populated from Clerk's profile image at signup; not guaranteed to
     // exist for every account.
     avatarUrl: {
       type: String,
@@ -47,7 +48,7 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-userSchema.index({ googleId: 1 }, { unique: true });
+userSchema.index({ clerkId: 1 }, { unique: true });
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
 
