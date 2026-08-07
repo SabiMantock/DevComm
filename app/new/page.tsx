@@ -4,30 +4,14 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import Card from "@/components/Card";
+import RichTextEditor from "@/components/RichTextEditor";
 import { projects } from "@/data/projects";
 
 const MAX_TAGS = 4;
 
-type ToolbarAction = "bold" | "italic" | "heading" | "link" | "image";
-
-/** Wraps the textarea's current selection in markdown syntax (or inserts a
- *  placeholder if nothing's selected) and reports where the new selection should land. */
-const wrapSelection = (textarea: HTMLTextAreaElement, before: string, after: string, placeholder: string) => {
-  const { selectionStart, selectionEnd, value } = textarea;
-  const selected = value.slice(selectionStart, selectionEnd) || placeholder;
-  const next = value.slice(0, selectionStart) + before + selected + after + value.slice(selectionEnd);
-
-  return {
-    next,
-    selectionStart: selectionStart + before.length,
-    selectionEnd: selectionStart + before.length + selected.length,
-  };
-};
-
 const NewPostForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
   const coverImageInputRef = useRef<HTMLInputElement>(null);
 
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
@@ -81,27 +65,6 @@ const NewPostForm = () => {
       if (coverImageUrl) URL.revokeObjectURL(coverImageUrl);
     };
   }, [coverImageUrl]);
-
-  const applyToolbarAction = (action: ToolbarAction) => {
-    const textarea = bodyRef.current;
-    if (!textarea) return;
-
-    const wrap = (before: string, after: string, placeholder: string) => {
-      const result = wrapSelection(textarea, before, after, placeholder);
-      setBody(result.next);
-      // Wait for the value update to render before restoring focus/selection.
-      requestAnimationFrame(() => {
-        textarea.focus();
-        textarea.setSelectionRange(result.selectionStart, result.selectionEnd);
-      });
-    };
-
-    if (action === "bold") wrap("**", "**", "bold text");
-    if (action === "italic") wrap("*", "*", "italic text");
-    if (action === "heading") wrap("## ", "", "Heading");
-    if (action === "link") wrap("[", "](https://)", "link text");
-    if (action === "image") wrap("![", "](image-url)", "alt text");
-  };
 
   const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -198,84 +161,7 @@ const NewPostForm = () => {
             )}
           </div>
 
-          <div className="border-dark-200 flex flex-col overflow-hidden rounded-[6px] border">
-            <div className="border-dark-200 bg-dark-200/40 flex flex-row items-center gap-1 border-b px-2 py-1.5">
-              <button
-                type="button"
-                onClick={() => applyToolbarAction("bold")}
-                aria-label="Bold"
-                className="text-light-200 hover:bg-dark-200 hover:text-light-100 flex h-7 w-7 items-center justify-center rounded-[6px] text-sm font-bold transition-colors"
-              >
-                B
-              </button>
-              <button
-                type="button"
-                onClick={() => applyToolbarAction("italic")}
-                aria-label="Italic"
-                className="text-light-200 hover:bg-dark-200 hover:text-light-100 flex h-7 w-7 items-center justify-center rounded-[6px] text-sm italic transition-colors"
-              >
-                I
-              </button>
-              <button
-                type="button"
-                onClick={() => applyToolbarAction("heading")}
-                aria-label="Heading"
-                className="text-light-200 hover:bg-dark-200 hover:text-light-100 flex h-7 w-7 items-center justify-center rounded-[6px] text-sm font-semibold transition-colors"
-              >
-                H
-              </button>
-              <button
-                type="button"
-                onClick={() => applyToolbarAction("link")}
-                aria-label="Link"
-                className="text-light-200 hover:bg-dark-200 hover:text-light-100 flex h-7 w-7 items-center justify-center rounded-[6px] transition-colors"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"
-                  />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => applyToolbarAction("image")}
-                aria-label="Image"
-                className="text-light-200 hover:bg-dark-200 hover:text-light-100 flex h-7 w-7 items-center justify-center rounded-[6px] transition-colors"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 15l-5-5-9 9" />
-                </svg>
-              </button>
-            </div>
-            <textarea
-              ref={bodyRef}
-              required
-              aria-label="Post body"
-              rows={14}
-              value={body}
-              onChange={(event) => setBody(event.target.value)}
-              placeholder="Write your post content here..."
-              className="bg-dark-100 placeholder:text-light-200 w-full px-4 py-3 font-mono text-sm leading-relaxed outline-none"
-            />
-          </div>
+          <RichTextEditor value={body} onChange={setBody} placeholder="Write your post content here..." />
         </Card>
 
         <Button type="submit" className="self-start">
