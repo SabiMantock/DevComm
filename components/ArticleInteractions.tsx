@@ -3,11 +3,23 @@
 import { useState } from "react";
 import Button from "@/components/Button";
 
+type Reply = {
+    id: string;
+    author: string;
+    timestamp: string;
+    body: string;
+    likes: number;
+    liked: boolean;
+};
+
 type Comment = {
     id: string;
     author: string;
     timestamp: string;
     body: string;
+    likes: number;
+    liked: boolean;
+    replies: Reply[];
 };
 
 type ArticleInteractionsProps = {
@@ -37,8 +49,53 @@ const ArticleInteractions = ({ initialLikes, initialComments, secondaryAction, c
         const body = draft.trim();
         if (!body) return;
 
-        setComments((prev) => [{ id: crypto.randomUUID(), author: "You", timestamp: "Just now", body }, ...prev]);
+        setComments((prev) => [
+            { id: crypto.randomUUID(), author: "You", timestamp: "Just now", body, likes: 0, liked: false, replies: [] },
+            ...prev,
+        ]);
         setDraft("");
+    };
+
+    /** Toggles like state on a top-level comment, or on one of its replies when replyId is given. */
+    const toggleCommentLike = (commentId: string, replyId?: string) => {
+        setComments((prev) =>
+            prev.map((comment) => {
+                if (comment.id !== commentId) return comment;
+
+                if (replyId) {
+                    return {
+                        ...comment,
+                        replies: comment.replies.map((reply) =>
+                            reply.id === replyId
+                                ? { ...reply, liked: !reply.liked, likes: reply.liked ? reply.likes - 1 : reply.likes + 1 }
+                                : reply
+                        ),
+                    };
+                }
+
+                return { ...comment, liked: !comment.liked, likes: comment.liked ? comment.likes - 1 : comment.likes + 1 };
+            })
+        );
+    };
+
+    /** Appends a new reply (author "You") to the given top-level comment. */
+    const addReply = (commentId: string, body: string) => {
+        const trimmed = body.trim();
+        if (!trimmed) return;
+
+        setComments((prev) =>
+            prev.map((comment) =>
+                comment.id === commentId
+                    ? {
+                          ...comment,
+                          replies: [
+                              ...comment.replies,
+                              { id: crypto.randomUUID(), author: "You", timestamp: "Just now", body: trimmed, likes: 0, liked: false },
+                          ],
+                      }
+                    : comment
+            )
+        );
     };
 
     return (

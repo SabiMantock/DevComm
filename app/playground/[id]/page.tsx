@@ -10,18 +10,27 @@ const dummyComments = [
     author: "Sam Rivera",
     timestamp: "2h ago",
     body: "Really clean write-up, love seeing the tricky parts called out instead of just the happy path.",
+    likes: 2,
+    liked: false,
+    replies: [],
   },
   {
     id: "c2",
     author: "Devon Park",
     timestamp: "1h ago",
     body: "Nice stack choice. Would love to see a follow-up post digging into the setup.",
+    likes: 4,
+    liked: false,
+    replies: [],
   },
   {
     id: "c3",
     author: "Lena Ortiz",
     timestamp: "20m ago",
     body: "Bookmarking this, want to try building something similar.",
+    likes: 0,
+    liked: false,
+    replies: [],
   },
 ];
 
