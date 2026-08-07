@@ -49,7 +49,7 @@ const PostCard = ({ id, author, publishedAt, title, tags, replies, likes, body }
 
             <div className="flex flex-row items-center justify-between gap-4">
                 <div className="text-light-200 flex flex-row items-center gap-4 text-sm">
-                    <span className="hover:text-light-100 flex flex-row items-center gap-1.5 transition-colors">
+                    <span className="hover:text-light-100 relative z-10 flex flex-row items-center gap-1.5 transition-colors">
                         <svg
                             viewBox="0 0 24 24"
                             fill="none"
