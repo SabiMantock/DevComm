@@ -36,7 +36,11 @@ const PostCard = ({ id, author, publishedAt, title, tags, replies, likes, body }
                 {tags.map((tag) => {
                     const slug = tag.toLowerCase().replace(/[^a-z0-9]/g, "");
                     return (
-                        <Link key={tag} href={`/tag/${slug}`} className="pill">
+                        <Link
+                            key={tag}
+                            href={`/tag/${slug}`}
+                            className="pill hover:bg-dark-200 hover:text-primary transition-colors"
+                        >
                             #{slug}
                         </Link>
                     );
@@ -45,7 +49,7 @@ const PostCard = ({ id, author, publishedAt, title, tags, replies, likes, body }
 
             <div className="flex flex-row items-center justify-between gap-4">
                 <div className="text-light-200 flex flex-row items-center gap-4 text-sm">
-                    <span className="flex flex-row items-center gap-1.5">
+                    <span className="hover:text-light-100 flex flex-row items-center gap-1.5 transition-colors">
                         <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -62,7 +66,10 @@ const PostCard = ({ id, author, publishedAt, title, tags, replies, likes, body }
                         </svg>
                         {likes}
                     </span>
-                    <span className="flex flex-row items-center gap-1.5">
+                    <Link
+                        href={`/post/${id}#comments`}
+                        className="hover:text-light-100 relative z-10 flex flex-row items-center gap-1.5 transition-colors"
+                    >
                         <svg
                             viewBox="0 0 24 24"
                             fill="none"
@@ -78,7 +85,7 @@ const PostCard = ({ id, author, publishedAt, title, tags, replies, likes, body }
                             />
                         </svg>
                         {replies}
-                    </span>
+                    </Link>
                     <span>{formatReadTime(body)}</span>
                 </div>
 
@@ -87,7 +94,7 @@ const PostCard = ({ id, author, publishedAt, title, tags, replies, likes, body }
                     onClick={() => toggleSave(id)}
                     aria-pressed={saved}
                     aria-label={saved ? "Remove bookmark" : "Save post"}
-                    className={`relative z-10 flex flex-row items-center transition-colors ${saved ? "text-primary" : "text-light-200 hover:text-light-100"}`}
+                    className={`relative z-10 -m-1.5 flex flex-row items-center rounded-full p-1.5 transition-colors ${saved ? "text-primary hover:bg-primary/10" : "text-light-200 hover:bg-dark-200 hover:text-light-100"}`}
                 >
                     <svg
                         viewBox="0 0 24 24"
