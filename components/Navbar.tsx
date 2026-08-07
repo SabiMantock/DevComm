@@ -6,7 +6,7 @@ const Navbar = () => {
     return (
         <header>
             <nav>
-                <div className="flex flex-row items-center gap-6">
+                <div className="flex min-w-0 flex-1 flex-row items-center gap-6">
                     <Logo />
                     <SearchBar />
                 </div>
