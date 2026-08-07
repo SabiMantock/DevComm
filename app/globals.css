@@ -108,4 +108,87 @@
     pointer-events: none;
     color: var(--color-light-200);
   }
+
+  /* Renders the HTML a post body gets from RichTextEditor — formatting only, no spacing
+     assumptions about what the editor actually produced (headings, lists, code, etc. can
+     appear in any order), so spacing between top-level elements is handled generically. */
+  .post-content {
+    @apply text-light-100 text-sm leading-relaxed;
+
+    > * + * {
+      @apply mt-4;
+    }
+
+    h1, h2, h3, h4 {
+      @apply text-light-100 font-schibsted-grotesk font-bold;
+    }
+
+    h1 {
+      @apply text-2xl;
+    }
+
+    h2 {
+      @apply text-xl;
+    }
+
+    h3 {
+      @apply text-lg;
+    }
+
+    h4 {
+      @apply text-base;
+    }
+
+    strong {
+      @apply font-bold;
+    }
+
+    em {
+      @apply italic;
+    }
+
+    u {
+      @apply underline;
+    }
+
+    s {
+      @apply line-through;
+    }
+
+    code {
+      @apply bg-dark-200 text-primary rounded-[4px] px-1.5 py-0.5 font-mono text-xs;
+    }
+
+    pre {
+      @apply bg-dark-200 overflow-x-auto rounded-[6px] p-4;
+
+      code {
+        @apply bg-transparent text-light-100 p-0 text-xs;
+      }
+    }
+
+    blockquote {
+      @apply border-dark-200 text-light-200 border-l-2 pl-4 italic;
+    }
+
+    ul {
+      @apply list-disc list-outside pl-5;
+    }
+
+    ol {
+      @apply list-decimal list-outside pl-5;
+    }
+
+    li {
+      @apply mb-1;
+
+      p {
+        @apply inline;
+      }
+    }
+
+    img {
+      @apply max-w-full rounded-[10px];
+    }
+  }
 }

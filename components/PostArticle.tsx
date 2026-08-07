@@ -26,8 +26,6 @@ const PostArticle = ({ post, relatedProject, initialComments, moreFromAuthor }: 
     const initialLikes = post.replies + 8;
     const [reaction, setReaction] = useState({ likes: initialLikes, liked: false, commentCount: initialComments.length });
 
-    const paragraphs = post.body.split("\n\n");
-
     return (
         <div className="flex flex-row items-start gap-6">
             <div className="sticky top-6 flex shrink-0 flex-col items-center gap-6 pt-1">
@@ -131,13 +129,7 @@ const PostArticle = ({ post, relatedProject, initialComments, moreFromAuthor }: 
                     hideReactionBar
                     onReactionChange={setReaction}
                 >
-                    <div className="flex flex-col gap-4">
-                        {paragraphs.map((paragraph, index) => (
-                            <p key={index} className="text-light-100 text-sm leading-relaxed">
-                                {paragraph}
-                            </p>
-                        ))}
-                    </div>
+                    <div className="post-content" dangerouslySetInnerHTML={{ __html: post.body }} />
                 </ArticleInteractions>
             </article>
 
