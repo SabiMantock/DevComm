@@ -96,4 +96,16 @@
   .pill {
     @apply bg-dark-100 text-light-100 text-xs rounded-[6px] px-2 py-2;
   }
+
+  .rich-text-editor .ProseMirror {
+    outline: none;
+  }
+
+  .rich-text-editor .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: var(--color-light-200);
+  }
 }
