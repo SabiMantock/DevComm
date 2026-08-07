@@ -34,7 +34,7 @@ const SavedPostsList = ({ mode }: SavedPostsListProps) => {
     const needle = search.trim().toLowerCase();
     const visiblePosts = needle ? tagFiltered.filter((post) => post.title.toLowerCase().includes(needle)) : tagFiltered;
 
-    const heading = mode === "bookmarks" ? `Bookmarks (${savedPosts.length})` : `Archive (${savedPosts.length})`;
+    const heading = mode === "bookmarks" ? `Saved List (${savedPosts.length})` : `Archive (${savedPosts.length})`;
     const toggleHref = mode === "bookmarks" ? "/archive" : "/bookmarks";
     const toggleLabel = mode === "bookmarks" ? "View archive" : "View saved";
     const actionLabel = mode === "bookmarks" ? "Archive" : "Unarchive";
@@ -68,6 +68,9 @@ const SavedPostsList = ({ mode }: SavedPostsListProps) => {
                 <div className="flex flex-row flex-wrap items-center justify-between gap-4">
                     <h1>{heading}</h1>
                     <div className="flex flex-row items-center gap-4">
+                        <Link href={toggleHref} className="text-light-200 hover:text-light-100 text-sm font-semibold transition-colors">
+                            {toggleLabel}
+                        </Link>
                         <input
                             type="text"
                             value={search}
@@ -76,9 +79,6 @@ const SavedPostsList = ({ mode }: SavedPostsListProps) => {
                             aria-label={`Search ${mode}`}
                             className="border-dark-200 bg-dark-100 placeholder:text-light-200 focus:border-primary/40 w-48 rounded-[6px] border px-3 py-1.5 text-sm outline-none transition-colors"
                         />
-                        <Link href={toggleHref} className="text-light-200 hover:text-light-100 text-sm font-semibold transition-colors">
-                            {toggleLabel}
-                        </Link>
                     </div>
                 </div>
 

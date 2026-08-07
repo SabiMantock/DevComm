@@ -8,6 +8,7 @@ const Sidebar = () => {
                 <ul className="m-0 flex list-none flex-row gap-1 overflow-x-auto p-0 md:flex-col md:gap-3">
                     <NavItem href="/" label="Home" />
                     <NavItem href="/playground" label="Playground" />
+                    <NavItem href="/bookmarks" label="Saved List" />
                     <NavItem href="/about" label="About" />
                     <NavItem href="/contact" label="Contact" />
                 </ul>
