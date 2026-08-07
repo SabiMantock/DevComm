@@ -2,6 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import Button from "@/components/Button";
+import RichTextEditor from "@/components/RichTextEditor";
 
 export type Reply = {
     id: string;
@@ -57,6 +58,9 @@ const HeartIcon = ({ filled, className = "h-5 w-5" }: { filled: boolean; classNa
     </svg>
 );
 
+/** True when TipTap's HTML output has no visible content (e.g. "<p></p>") — a plain .trim() on that string is always truthy. */
+const isBlankHtml = (html: string) => !html.replace(/<[^>]*>/g, "").trim();
+
 /** Like button + comment thread shared by the post and project detail pages. */
 const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInteractionsProps>(function ArticleInteractions(
     { initialLikes, initialComments, secondaryAction, children, hideReactionBar = false, onReactionChange },
@@ -83,11 +87,10 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const body = draft.trim();
-        if (!body) return;
+        if (isBlankHtml(draft)) return;
 
         setComments((prev) => [
-            { id: crypto.randomUUID(), author: "You", timestamp: "Just now", body, likes: 0, liked: false, replies: [] },
+            { id: crypto.randomUUID(), author: "You", timestamp: "Just now", body: draft, likes: 0, liked: false, replies: [] },
             ...prev,
         ]);
         setDraft("");
@@ -117,8 +120,7 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
 
     /** Appends a new reply (author "You") to the given top-level comment. */
     const addReply = (commentId: string, body: string) => {
-        const trimmed = body.trim();
-        if (!trimmed) return;
+        if (isBlankHtml(body)) return;
 
         setComments((prev) =>
             prev.map((comment) =>
@@ -127,7 +129,7 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
                           ...comment,
                           replies: [
                               ...comment.replies,
-                              { id: crypto.randomUUID(), author: "You", timestamp: "Just now", body: trimmed, likes: 0, liked: false },
+                              { id: crypto.randomUUID(), author: "You", timestamp: "Just now", body, likes: 0, liked: false },
                           ],
                       }
                     : comment
@@ -143,10 +145,9 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
 
     const handleReplySubmit = (event: React.FormEvent<HTMLFormElement>, commentId: string) => {
         event.preventDefault();
-        const trimmed = replyDraft.trim();
-        if (!trimmed) return;
+        if (isBlankHtml(replyDraft)) return;
 
-        addReply(commentId, trimmed);
+        addReply(commentId, replyDraft);
         setReplyDraft("");
         setReplyingToId(null);
     };
@@ -180,13 +181,7 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
             <form onSubmit={handleSubmit} className="flex flex-row items-start gap-3">
                 <div className="bg-dark-200 h-9 w-9 shrink-0 rounded-full" aria-hidden="true" />
                 <div className="flex flex-1 flex-col items-start gap-3">
-                    <textarea
-                        value={draft}
-                        onChange={(event) => setDraft(event.target.value)}
-                        placeholder="Add a comment..."
-                        rows={3}
-                        className="bg-dark-100 border-dark-200 placeholder:text-light-200 w-full rounded-[6px] border px-4 py-3 text-sm"
-                    />
+                    <RichTextEditor compact value={draft} onChange={setDraft} placeholder="Add a comment..." />
                     <Button type="submit">Post comment</Button>
                 </div>
             </form>
@@ -200,7 +195,7 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
                                 <span className="text-sm font-semibold">{comment.author}</span>
                                 <span className="text-light-200 text-xs">{comment.timestamp}</span>
                             </div>
-                            <p className="text-light-100 text-sm leading-snug">{comment.body}</p>
+                            <div className="post-content" dangerouslySetInnerHTML={{ __html: comment.body }} />
 
                             <div className="flex flex-row items-center gap-4 pt-1">
                                 <button
@@ -228,12 +223,11 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
                                 >
                                     <div className="bg-dark-200 h-8 w-8 shrink-0 rounded-full" aria-hidden="true" />
                                     <div className="flex flex-1 flex-col items-start gap-2">
-                                        <textarea
+                                        <RichTextEditor
+                                            compact
                                             value={replyDraft}
-                                            onChange={(event) => setReplyDraft(event.target.value)}
+                                            onChange={setReplyDraft}
                                             placeholder="Write a reply..."
-                                            rows={2}
-                                            className="bg-dark-100 border-dark-200 placeholder:text-light-200 w-full rounded-[6px] border px-3 py-2 text-sm"
                                         />
                                         <Button type="submit">Reply</Button>
                                     </div>
@@ -250,7 +244,7 @@ const ArticleInteractions = forwardRef<ArticleInteractionsHandle, ArticleInterac
                                                     <span className="text-xs font-semibold">{reply.author}</span>
                                                     <span className="text-light-200 text-xs">{reply.timestamp}</span>
                                                 </div>
-                                                <p className="text-light-100 text-xs leading-snug">{reply.body}</p>
+                                                <div className="post-content text-xs" dangerouslySetInnerHTML={{ __html: reply.body }} />
                                                 <button
                                                     type="button"
                                                     onClick={() => toggleCommentLike(comment.id, reply.id)}
