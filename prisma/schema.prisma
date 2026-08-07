@@ -1,0 +1,226 @@
+// Prisma schema for DevComm, PostgreSQL via Prisma Postgres.
+//
+// Adapted from the MongoDB version of this schema (itself a 1:1 migration
+// from the previous Mongoose models, database/*.model.ts). Notes on what
+// changed moving to a relational provider:
+//   - IDs are now `String @default(cuid())` instead of Mongo ObjectIds —
+//     no more @db.ObjectId / @map("_id").
+//   - Reply is now its own table with a real relation to Comment, instead
+//     of an embedded MongoDB composite type. It no longer needs a
+//     hand-generated id (Prisma/Postgres assigns one via cuid()).
+//   - Post.slug / Project.slug generation, User.email format validation,
+//     and Comment's polymorphic parent existence check still have no
+//     schema-level equivalent in Prisma, so they remain plain functions in
+//     lib/db-helpers.ts called from route handlers:
+//       - slugify() before prisma.post.create()/update() or
+//         prisma.project.create()/update()
+//       - isValidEmail() before writing a User
+//       - assertParentExists() before creating a Comment
+//   - Comment.parentId and Like.likeableId stay plain strings with no
+//     Prisma relation — Prisma can't express a relation that targets one of
+//     several different models (a Post *or* a Project *or* ...), so the
+//     existence check moves to application code instead.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+// Connection URL lives in prisma.config.ts (Prisma 7 no longer supports
+// `datasource.url` in the schema file — see https://pris.ly/d/config-datasource).
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// User
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  // Clerk's own user id for the account — the real identity anchor. It's
+  // provider-agnostic and, unlike email/username, never changes, so it's
+  // what authentication/ownership checks should key off.
+  clerkId   String   @unique
+  username  String   @unique
+  // Format is validated at the route-handler level (see note above).
+  email     String   @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts     Post[]
+  projects  Project[]
+  comments  Comment[]
+  bookmarks Bookmark[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Post
+// ---------------------------------------------------------------------------
+
+model Post {
+  id            String   @id @default(cuid())
+  authorId      String
+  author        User     @relation(fields: [authorId], references: [id])
+  title         String
+  // Generated from `title` in the route handler; never set directly by a
+  // client.
+  slug          String   @unique
+  // HTML from the app's rich text editor.
+  body          String
+  tags          String[]
+  coverImageUrl String?
+  publishedAt   DateTime
+  projectId     String?
+  project       Project? @relation(fields: [projectId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bookmarks     Bookmark[]
+
+  @@index([authorId])
+  // GIN index on `tags` — makes filtering/searching posts by tag efficient.
+  @@index([tags])
+  @@map("posts")
+}
+
+// ---------------------------------------------------------------------------
+// Project
+// ---------------------------------------------------------------------------
+
+enum ProjectType {
+  WEB_APP @map("Web app")
+  TOOL    @map("Tool")
+  GAME    @map("Game")
+  SCRIPT  @map("Script")
+}
+
+enum ProjectStatus {
+  WIP
+  Shipped
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  ownerId       String
+  owner         User          @relation(fields: [ownerId], references: [id])
+  title         String
+  // Generated from `title` in the route handler; never set directly by a
+  // client.
+  slug          String        @unique
+  // Short summary shown on the project card.
+  description   String
+  // Longer optional HTML from the rich text editor, shown on the detail
+  // page.
+  writeUp       String?
+  stack         String[]
+  type          ProjectType
+  status        ProjectStatus
+  liveUrl       String?
+  repoUrl       String?
+  coverImageUrl String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  posts         Post[]
+
+  @@index([ownerId])
+  @@map("projects")
+}
+
+// ---------------------------------------------------------------------------
+// Comment + Reply
+// ---------------------------------------------------------------------------
+
+enum ParentType {
+  Post
+  Project
+}
+
+model Comment {
+  id         String     @id @default(cuid())
+  authorId   String
+  author     User       @relation(fields: [authorId], references: [id])
+  // Comments are polymorphic: they attach to either a Post or a Project,
+  // both of which share the same comment UI. No Prisma relation on
+  // `parentId` — see the file-level note.
+  parentType ParentType
+  parentId   String
+  body       String
+  replies    Reply[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([parentId])
+  @@map("comments")
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([commentId])
+  @@map("replies")
+}
+
+// ---------------------------------------------------------------------------
+// Like
+// ---------------------------------------------------------------------------
+
+// One generic model covers posts, projects, comments, and replies instead
+// of four near-identical tables.
+enum LikeableType {
+  Post
+  Project
+  Comment
+  Reply
+}
+
+model Like {
+  id           String       @id @default(cuid())
+  userId       String
+  likeableType LikeableType
+  // No relation here: a like can point at a Post, Project, Comment, or
+  // Reply, and Prisma can't express a relation that targets one of several
+  // different models.
+  likeableId   String
+
+  // The unique index — not application logic — is what actually prevents
+  // a user from double-liking the same thing.
+  @@unique([userId, likeableType, likeableId])
+  @@map("likes")
+}
+
+// ---------------------------------------------------------------------------
+// Bookmark
+// ---------------------------------------------------------------------------
+
+enum BookmarkStatus {
+  saved
+  archived
+}
+
+model Bookmark {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  postId    String
+  post      Post           @relation(fields: [postId], references: [id])
+  // A bookmark moves between "saved" and "archived" rather than being
+  // deleted/recreated, matching the app's existing archive/unarchive flow.
+  status    BookmarkStatus @default(saved)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  // A user can only have one bookmark record per post — its `status`
+  // moves between saved/archived instead of creating duplicate rows.
+  @@unique([userId, postId])
+  @@map("bookmarks")
+}
