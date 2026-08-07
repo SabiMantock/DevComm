@@ -23,8 +23,7 @@
     "ogl": "^1.0.11",
     "pg": "^8.22.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "svix": "^1.99.1"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
