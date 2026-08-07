@@ -47,8 +47,16 @@ const Page = async (props: PageProps<"/post/[id]">) => {
   }
 
   const relatedProject = post.projectId ? projects.find((p) => p.id === post.projectId) : undefined;
+  const moreFromAuthor = posts.filter((p) => p.author === post.author && p.id !== post.id).slice(0, 3);
 
-  return <PostArticle post={post} relatedProject={relatedProject} initialComments={dummyComments} />;
+  return (
+    <PostArticle
+      post={post}
+      relatedProject={relatedProject}
+      initialComments={dummyComments}
+      moreFromAuthor={moreFromAuthor}
+    />
+  );
 };
 
 export default Page;

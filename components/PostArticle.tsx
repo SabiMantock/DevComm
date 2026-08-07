@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Link from "next/link";
 import ArticleInteractions, { type ArticleInteractionsHandle, type Comment } from "@/components/ArticleInteractions";
 import Button from "@/components/Button";
+import MoreFromAuthor from "@/components/MoreFromAuthor";
 import type { Post } from "@/data/posts";
 import type { Project } from "@/data/projects";
 import { formatRelativeTime } from "@/lib/formatTime";
@@ -13,10 +14,11 @@ type PostArticleProps = {
     post: Post;
     relatedProject?: Project;
     initialComments: Comment[];
+    moreFromAuthor: Post[];
 };
 
-/** Post detail body: sticky reaction rail (like/comments/bookmark) + article content. Mirrors ArticleInteractions' internal like/comment state via onReactionChange/ref instead of keeping a second copy. */
-const PostArticle = ({ post, relatedProject, initialComments }: PostArticleProps) => {
+/** Post detail body: sticky reaction rail (like/comments/bookmark) + article content + "more from author" sidebar. Mirrors ArticleInteractions' internal like/comment state via onReactionChange/ref instead of keeping a second copy. */
+const PostArticle = ({ post, relatedProject, initialComments, moreFromAuthor }: PostArticleProps) => {
     const { isSaved, toggleSave } = useBookmarks();
     const saved = isSaved(post.id);
 
@@ -138,6 +140,12 @@ const PostArticle = ({ post, relatedProject, initialComments }: PostArticleProps
                     </div>
                 </ArticleInteractions>
             </article>
+
+            {moreFromAuthor.length > 0 && (
+                <aside className="hidden w-72 shrink-0 flex-col gap-6 lg:flex">
+                    <MoreFromAuthor author={post.author} posts={moreFromAuthor} />
+                </aside>
+            )}
         </div>
     );
 };
