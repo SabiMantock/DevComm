@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/Button";
+import RichTextEditor from "@/components/RichTextEditor";
 
 const inputClassName =
   "bg-dark-100 border-dark-200 placeholder:text-light-200 w-full rounded-[6px] border px-4 py-2.5 text-sm";
@@ -187,16 +188,13 @@ const Page = () => {
         </div>
 
         <div className="flex flex-col gap-2">
-          <label htmlFor="writeUp" className={labelClassName}>
+          <span className={labelClassName}>
             Longer write-up <span className="text-light-200 font-normal">(optional)</span>
-          </label>
-          <textarea
-            id="writeUp"
-            rows={5}
+          </span>
+          <RichTextEditor
             value={writeUp}
-            onChange={(event) => setWriteUp(event.target.value)}
+            onChange={setWriteUp}
             placeholder="What it does, how it's built, tradeoffs you made — leave blank to just reuse the short summary above."
-            className={inputClassName}
           />
         </div>
 
