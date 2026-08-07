@@ -1,10 +1,11 @@
 export type Post = {
   id: string;
   author: string;
-  timestamp: string;
+  publishedAt: string;
   title: string;
   tags: string[];
   replies: number;
+  likes: number;
   body: string;
   /** Whether this post has a cover image. No real asset yet — renders as a placeholder block. */
   coverImage?: boolean;
@@ -16,10 +17,11 @@ export const posts: Post[] = [
   {
     id: "nested-server-state",
     author: "Jordan Lee",
-    timestamp: "2h ago",
+    publishedAt: "2026-08-07T08:00:00Z",
     title: "How do you handle state across nested server components?",
     tags: ["Questions", "Next.js"],
     replies: 12,
+    likes: 34,
     projectId: "realtime-kanban-board",
     body: `I've got a layout with a server component at the top, a couple of server components nested a few levels down, and a handful of client islands sprinkled throughout. The problem: two of those client islands need to react to the same piece of state (a selected "workspace"), but they don't share a parent client component — the closest common ancestor is a server component, and you can't just drop a Context.Provider there.
 
@@ -30,10 +32,11 @@ The tradeoff is that every workspace switch is a navigation, which means a round
   {
     id: "shipped-first-side-project",
     author: "Priya Nair",
-    timestamp: "5h ago",
+    publishedAt: "2026-08-07T05:00:00Z",
     title: "Shipped my first side project this weekend 🎉",
     tags: ["Wins"],
     replies: 4,
+    likes: 58,
     coverImage: true,
     body: `I finally pushed the "Publish" button on a tiny habit tracker I've been poking at for the last three weekends. Nothing fancy — a streak counter, a calendar heatmap, and a way to log a habit with one tap — but it's the first thing I've built end to end and actually deployed instead of leaving in a half-finished repo.
 
@@ -44,10 +47,11 @@ It's live now, it's ugly in places, and I already have a list of five things I w
   {
     id: "usedeferredvalue-debounce-til",
     author: "Marcus Chen",
-    timestamp: "1d ago",
+    publishedAt: "2026-08-06T10:00:00Z",
     title: "TIL: you can debounce with useDeferredValue instead of a custom hook",
     tags: ["Tips", "React"],
     replies: 8,
+    likes: 47,
     body: `I've had a "useDebounce" hook copy-pasted into basically every project I've worked on for years — wrap a value in a useEffect, set a timeout, clear it on the next keystroke, done. Today I ripped it out of a search-filter component and replaced it with useDeferredValue instead, and it's honestly a better fit for what I was actually trying to do.
 
 The difference in behavior is subtle but matters: a timer-based debounce waits for a fixed delay after you stop typing, regardless of how expensive the actual filtering work is. useDeferredValue instead lets React keep the input responsive and defers re-rendering the expensive list until the browser has a spare moment — so on a fast machine filtering a small list, it updates almost immediately, and on a slow machine filtering a huge list, it backs off automatically instead of you having to hand-tune a delay in milliseconds.
@@ -57,10 +61,11 @@ The one gotcha I ran into: you still want to visually indicate that the results 
   {
     id: "code-works-dont-know-why",
     author: "Ava Thompson",
-    timestamp: "2d ago",
+    publishedAt: "2026-08-05T14:00:00Z",
     title: "When your code finally works but you don't know why",
     tags: ["Memes"],
     replies: 21,
+    likes: 21,
     coverImage: true,
     body: `Spent three hours convinced a race condition was corrupting my state. Added logging. Added more logging. Wrapped half the function in try/catch just to see what was actually happening. Rewrote the reducer twice. Nothing.
 

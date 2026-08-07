@@ -2,6 +2,7 @@ import ArticleInteractions from "@/components/ArticleInteractions";
 import Button from "@/components/Button";
 import { posts } from "@/data/posts";
 import { projects } from "@/data/projects";
+import { formatRelativeTime } from "@/lib/formatTime";
 
 const dummyComments = [
   {
@@ -48,7 +49,7 @@ const Page = async (props: PageProps<"/post/[id]">) => {
         <div className="bg-dark-200 h-10 w-10 shrink-0 rounded-full" aria-hidden="true" />
         <div className="flex flex-col">
           <span className="text-sm font-semibold">{post.author}</span>
-          <span className="text-light-200 text-xs">{post.timestamp}</span>
+          <span className="text-light-200 text-xs">{formatRelativeTime(post.publishedAt)}</span>
         </div>
       </div>
 
