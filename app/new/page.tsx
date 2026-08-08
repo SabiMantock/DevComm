@@ -9,6 +9,10 @@ import { projects } from "@/data/projects";
 
 const MAX_TAGS = 4;
 
+// The rich text editor's empty state is "<p></p>", not "" — strip tags
+// before checking for actual content.
+const isBodyEmpty = (html: string) => html.replace(/<[^>]*>/g, "").trim().length === 0;
+
 const NewPostForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,11 +26,16 @@ const NewPostForm = () => {
   const focusTagDraftRef = useRef(false);
 
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  // The actual File, kept alongside the object-URL preview above — the
+  // preview is what <img> renders, but the API upload needs the real File.
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
   const [body, setBody] = useState("");
   const [linkedProjectId, setLinkedProjectId] = useState(() => searchParams.get("project"));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const linkedProject = linkedProjectId ? projects.find((p) => p.id === linkedProjectId) : undefined;
 
@@ -77,12 +86,10 @@ const NewPostForm = () => {
     focusTagDraftRef.current = true;
   };
 
-  // Local preview only — this is a real file from the user's computer, but there's
-  // no shared client store or backend yet (see AGENTS.md's build-order guardrail) to
-  // actually upload it to, so it never leaves the browser.
   const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    setCoverImageFile(file);
     setCoverImageUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return URL.createObjectURL(file);
@@ -90,6 +97,7 @@ const NewPostForm = () => {
   };
 
   const removeCoverImage = () => {
+    setCoverImageFile(null);
     setCoverImageUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return null;
@@ -105,12 +113,48 @@ const NewPostForm = () => {
     };
   }, [coverImageUrl]);
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitError(null);
 
-    // No shared client store or backend yet (see AGENTS.md's build-order guardrail),
-    // so the post can't actually be added to data/posts.ts or show up in the feed.
-    // Reset the form and send the user back home until real persistence exists.
+    // A tag that was typed but never committed (no Enter/Space yet)
+    // shouldn't be silently dropped just because the user hit Post instead.
+    const pendingTag = tagDraft.trim();
+    const effectiveTags =
+      pendingTag && !tags.includes(pendingTag) && tags.length < MAX_TAGS ? [...tags, pendingTag] : tags;
+
+    if (isBodyEmpty(body)) {
+      setSubmitError("Post content is required.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("body", body);
+    formData.append("tags", JSON.stringify(effectiveTags));
+    if (linkedProjectId) formData.append("projectId", linkedProjectId);
+    if (coverImageFile) formData.append("image", coverImageFile);
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/posts", { method: "POST", body: formData });
+      const result: unknown = await response.json();
+
+      if (!response.ok) {
+        const message =
+          typeof result === "object" && result !== null && "message" in result && typeof result.message === "string"
+            ? result.message
+            : "Something went wrong while creating the post.";
+        setSubmitError(message);
+        setIsSubmitting(false);
+        return;
+      }
+    } catch {
+      setSubmitError("Something went wrong while creating the post.");
+      setIsSubmitting(false);
+      return;
+    }
+
     removeCoverImage();
     setTitle("");
     setTags([]);
@@ -213,8 +257,14 @@ const NewPostForm = () => {
           <RichTextEditor value={body} onChange={setBody} placeholder="Write your post content here..." />
         </Card>
 
-        <Button type="submit" className="self-start">
-          Post
+        {submitError && (
+          <p role="alert" className="text-primary text-sm">
+            {submitError}
+          </p>
+        )}
+
+        <Button type="submit" disabled={isSubmitting} className="self-start">
+          {isSubmitting ? "Posting..." : "Post"}
         </Button>
       </form>
     </section>
