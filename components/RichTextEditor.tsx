@@ -24,18 +24,20 @@ const EMOJI = [
 type ToolbarButtonProps = {
     label: string;
     active?: boolean;
+    disabled?: boolean;
     onClick: () => void;
     compact: boolean;
     children: React.ReactNode;
 };
 
-const ToolbarButton = ({ label, active = false, onClick, compact, children }: ToolbarButtonProps) => (
+const ToolbarButton = ({ label, active = false, disabled = false, onClick, compact, children }: ToolbarButtonProps) => (
     <button
         type="button"
         onClick={onClick}
+        disabled={disabled}
         aria-label={label}
         aria-pressed={active}
-        className={`flex items-center justify-center rounded-[6px] transition-colors ${compact ? "h-6 w-6 text-xs" : "h-7 w-7 text-sm"} ${
+        className={`flex items-center justify-center rounded-[6px] transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${compact ? "h-6 w-6 text-xs" : "h-7 w-7 text-sm"} ${
             active ? "bg-dark-200 text-primary" : "text-light-200 hover:bg-dark-200 hover:text-light-100"
         }`}
     >
@@ -47,6 +49,8 @@ const ToolbarButton = ({ label, active = false, onClick, compact, children }: To
 const RichTextEditor = ({ value, onChange, placeholder = "Write something...", compact = false }: RichTextEditorProps) => {
     const imageInputRef = useRef<HTMLInputElement>(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [imageUploadError, setImageUploadError] = useState<string | null>(null);
 
     const editor = useEditor({
         extensions: [StarterKit, Underline, Image, Placeholder.configure({ placeholder })],
@@ -71,16 +75,41 @@ const RichTextEditor = ({ value, onChange, placeholder = "Write something...", c
         }
     }, [value, editor]);
 
-    // Local preview only — this is a real file from the user's computer, but there's
-    // no shared client store or backend yet (see AGENTS.md's build-order guardrail) to
-    // actually upload it to, so it never leaves the browser.
-    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Unlike the post/project cover image (uploaded inline inside POST
+    // /api/posts and /api/projects once the record is being created), an
+    // image inserted here becomes part of the body's HTML immediately —
+    // before any post/project/comment exists yet to attach an upload to.
+    // So this goes through its own small /api/upload endpoint instead.
+    const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         event.target.value = "";
         if (!file || !editor) return;
 
-        const url = URL.createObjectURL(file);
-        editor.chain().focus().setImage({ src: url }).run();
+        setImageUploadError(null);
+        setIsUploadingImage(true);
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await fetch("/api/upload", { method: "POST", body: formData });
+            const result: unknown = await response.json();
+
+            if (!response.ok || typeof result !== "object" || result === null || typeof (result as { url?: unknown }).url !== "string") {
+                const message =
+                    typeof result === "object" && result !== null && "message" in result && typeof result.message === "string"
+                        ? result.message
+                        : "Failed to upload the image.";
+                setImageUploadError(message);
+                return;
+            }
+
+            editor.chain().focus().setImage({ src: (result as { url: string }).url }).run();
+        } catch {
+            setImageUploadError("Failed to upload the image.");
+        } finally {
+            setIsUploadingImage(false);
+        }
     };
 
     const insertEmoji = (emoji: string) => {
@@ -197,7 +226,12 @@ const RichTextEditor = ({ value, onChange, placeholder = "Write something...", c
                 aria-hidden="true"
                 tabIndex={-1}
             />
-            <ToolbarButton label="Insert image" onClick={() => imageInputRef.current?.click()} compact={compact}>
+            <ToolbarButton
+                label={isUploadingImage ? "Uploading image…" : "Insert image"}
+                disabled={isUploadingImage}
+                onClick={() => imageInputRef.current?.click()}
+                compact={compact}
+            >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4" aria-hidden="true">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <circle cx="8.5" cy="8.5" r="1.5" />
@@ -217,6 +251,12 @@ const RichTextEditor = ({ value, onChange, placeholder = "Write something...", c
                     <path strokeLinecap="round" d="M8 14.5c1.2 1.3 6.8 1.3 8 0" />
                 </svg>
             </ToolbarButton>
+
+            {imageUploadError && (
+                <span role="alert" className="text-primary text-xs">
+                    {imageUploadError}
+                </span>
+            )}
 
             {showEmojiPicker && (
                 <div

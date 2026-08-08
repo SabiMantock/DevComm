@@ -9,6 +9,8 @@ interface ButtonProps {
     onClick?: () => void;
     /** primary: filled CTA style. ghost: outlined, for secondary actions. */
     variant?: "primary" | "ghost";
+    /** No-op when `href` is set — a Link can't be meaningfully disabled. */
+    disabled?: boolean;
 }
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
@@ -16,9 +18,9 @@ const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
     ghost: "border-dark-200 text-light-100 hover:bg-dark-100 border",
 };
 
-const Button = ({ children, href, className = "", type = "button", onClick, variant = "primary" }: ButtonProps) => {
+const Button = ({ children, href, className = "", type = "button", onClick, variant = "primary", disabled = false }: ButtonProps) => {
     const classes =
-        `flex cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-sm font-semibold transition-colors ${variantClasses[variant]} ${className}`.trim();
+        `flex cursor-pointer items-center justify-center rounded-[6px] px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${variantClasses[variant]} ${className}`.trim();
 
     if (href) {
         return (
@@ -29,7 +31,7 @@ const Button = ({ children, href, className = "", type = "button", onClick, vari
     }
 
     return (
-        <button type={type} onClick={onClick} className={classes}>
+        <button type={type} onClick={onClick} disabled={disabled} className={classes}>
             {children}
         </button>
     );

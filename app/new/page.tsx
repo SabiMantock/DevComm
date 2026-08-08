@@ -9,24 +9,43 @@ import { projects } from "@/data/projects";
 
 const MAX_TAGS = 4;
 
+// The rich text editor's empty state is "<p></p>", not "" — strip tags
+// before checking for actual content.
+const isBodyEmpty = (html: string) => html.replace(/<[^>]*>/g, "").trim().length === 0;
+
 const NewPostForm = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const coverImageInputRef = useRef<HTMLInputElement>(null);
+  const tagDraftInputRef = useRef<HTMLInputElement>(null);
+  // Set right before a setTags call that removes a tag to re-edit it, so the
+  // effect below can refocus the draft input once it's back in the DOM —
+  // removing the 4th tag makes the (previously hidden, tags.length ===
+  // MAX_TAGS) draft input reappear only after this render commits, so a
+  // plain ref.current.focus() call at click time would still find it null.
+  const focusTagDraftRef = useRef(false);
 
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  // The actual File, kept alongside the object-URL preview above — the
+  // preview is what <img> renders, but the API upload needs the real File.
+  const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagDraft, setTagDraft] = useState("");
   const [body, setBody] = useState("");
   const [linkedProjectId, setLinkedProjectId] = useState(() => searchParams.get("project"));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const linkedProject = linkedProjectId ? projects.find((p) => p.id === linkedProjectId) : undefined;
 
-  const addTag = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== "Enter") return;
-    event.preventDefault();
+  useEffect(() => {
+    if (!focusTagDraftRef.current) return;
+    focusTagDraftRef.current = false;
+    tagDraftInputRef.current?.focus();
+  }, [tags]);
 
+  const commitTagDraft = () => {
     const tag = tagDraft.trim();
     setTagDraft("");
     if (!tag || tags.includes(tag) || tags.length >= MAX_TAGS) return;
@@ -34,16 +53,43 @@ const NewPostForm = () => {
     setTags((prev) => [...prev, tag]);
   };
 
+  const handleTagDraftKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    // Enter or Space commits the draft as a tag — Space matches how most
+    // tag inputs behave, since typing a literal space into a single-word
+    // tag isn't useful anyway.
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      commitTagDraft();
+      return;
+    }
+
+    // Backspace on an already-empty draft pops the most recently committed
+    // tag, matching the standard chip-input convention (e.g. Gmail's To
+    // field) — otherwise deleting a tag right after typing it requires
+    // reaching for the mouse.
+    if (event.key === "Backspace" && tagDraft === "" && tags.length > 0) {
+      event.preventDefault();
+      setTags((prev) => prev.slice(0, -1));
+    }
+  };
+
   const removeTag = (tag: string) => {
     setTags((prev) => prev.filter((t) => t !== tag));
   };
 
-  // Local preview only — this is a real file from the user's computer, but there's
-  // no shared client store or backend yet (see AGENTS.md's build-order guardrail) to
-  // actually upload it to, so it never leaves the browser.
+  // Re-opens a committed tag for editing: pulls it back into the draft
+  // input (focused) instead of just deleting it, so fixing a typo doesn't
+  // mean retyping the whole tag from scratch.
+  const editTag = (tag: string) => {
+    removeTag(tag);
+    setTagDraft(tag);
+    focusTagDraftRef.current = true;
+  };
+
   const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
+    setCoverImageFile(file);
     setCoverImageUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return URL.createObjectURL(file);
@@ -51,6 +97,7 @@ const NewPostForm = () => {
   };
 
   const removeCoverImage = () => {
+    setCoverImageFile(null);
     setCoverImageUrl((previous) => {
       if (previous) URL.revokeObjectURL(previous);
       return null;
@@ -66,12 +113,48 @@ const NewPostForm = () => {
     };
   }, [coverImageUrl]);
 
-  const handleSubmit = (event: React.SubmitEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setSubmitError(null);
 
-    // No shared client store or backend yet (see AGENTS.md's build-order guardrail),
-    // so the post can't actually be added to data/posts.ts or show up in the feed.
-    // Reset the form and send the user back home until real persistence exists.
+    // A tag that was typed but never committed (no Enter/Space yet)
+    // shouldn't be silently dropped just because the user hit Post instead.
+    const pendingTag = tagDraft.trim();
+    const effectiveTags =
+      pendingTag && !tags.includes(pendingTag) && tags.length < MAX_TAGS ? [...tags, pendingTag] : tags;
+
+    if (isBodyEmpty(body)) {
+      setSubmitError("Post content is required.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("body", body);
+    formData.append("tags", JSON.stringify(effectiveTags));
+    if (linkedProjectId) formData.append("projectId", linkedProjectId);
+    if (coverImageFile) formData.append("image", coverImageFile);
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/posts", { method: "POST", body: formData });
+      const result: unknown = await response.json();
+
+      if (!response.ok) {
+        const message =
+          typeof result === "object" && result !== null && "message" in result && typeof result.message === "string"
+            ? result.message
+            : "Something went wrong while creating the post.";
+        setSubmitError(message);
+        setIsSubmitting(false);
+        return;
+      }
+    } catch {
+      setSubmitError("Something went wrong while creating the post.");
+      setIsSubmitting(false);
+      return;
+    }
+
     removeCoverImage();
     setTitle("");
     setTags([]);
@@ -139,22 +222,32 @@ const NewPostForm = () => {
 
           <div className="flex flex-row flex-wrap items-center gap-2">
             {tags.map((tag) => (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => removeTag(tag)}
-                className="pill hover:text-primary transition-colors"
-              >
-                #{tag.toLowerCase().replace(/[^a-z0-9]/g, "")} ×
-              </button>
+              <span key={tag} className="pill flex flex-row items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => editTag(tag)}
+                  className="hover:text-primary transition-colors"
+                >
+                  #{tag.toLowerCase().replace(/[^a-z0-9]/g, "")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => removeTag(tag)}
+                  aria-label={`Remove tag ${tag}`}
+                  className="hover:text-primary transition-colors"
+                >
+                  ×
+                </button>
+              </span>
             ))}
             {tags.length < MAX_TAGS && (
               <input
+                ref={tagDraftInputRef}
                 type="text"
                 aria-label="Add tags"
                 value={tagDraft}
                 onChange={(event) => setTagDraft(event.target.value)}
-                onKeyDown={addTag}
+                onKeyDown={handleTagDraftKeyDown}
                 placeholder={`Add up to ${MAX_TAGS} tags...`}
                 className="placeholder:text-light-200 min-w-40 flex-1 border-none bg-transparent text-sm outline-none"
               />
@@ -164,8 +257,14 @@ const NewPostForm = () => {
           <RichTextEditor value={body} onChange={setBody} placeholder="Write your post content here..." />
         </Card>
 
-        <Button type="submit" className="self-start">
-          Post
+        {submitError && (
+          <p role="alert" className="text-primary text-sm">
+            {submitError}
+          </p>
+        )}
+
+        <Button type="submit" disabled={isSubmitting} className="self-start">
+          {isSubmitting ? "Posting..." : "Post"}
         </Button>
       </form>
     </section>
